@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.DingdanDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.dingdan_bianhao as dingdanBianhao
+        ,a.yonghu_id as yonghuId
+        ,a.dingdan_name as dingdanName
+        ,a.dingdan_number as dingdanNumber
+        ,a.dingdan_time as dingdanTime
+        ,a.dingdan_money as dingdanMoney
+        ,a.dingdan_types as dingdanTypes
+        ,a.youxigonglue_content as youxigonglueContent
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.DingdanView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,yonghu.yonghu_bianhao as yonghuBianhao
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.sex_types as sexTypes
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_photo as yonghuPhoto
+
+        FROM dingdan  a
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test=" params.dingdanBianhao != '' and params.dingdanBianhao != null and params.dingdanBianhao != 'null' ">
+                and a.dingdan_bianhao like CONCAT('%',#{params.dingdanBianhao},'%')
+            </if>
+            <if test="params.yonghuId != null">
+                and a.yonghu_id = #{params.yonghuId}
+            </if>
+            <if test=" params.dingdanName != '' and params.dingdanName != null and params.dingdanName != 'null' ">
+                and a.dingdan_name like CONCAT('%',#{params.dingdanName},'%')
+            </if>
+            <if test="params.dingdanNumberStart != null">
+                <![CDATA[  and a.dingdan_number >= #{params.dingdanNumberStart}   ]]>
+            </if>
+            <if test="params.dingdanNumberEnd != null">
+                <![CDATA[  and a.dingdan_number <= #{params.dingdanNumberEnd}   ]]>
+            </if>
+            <if test=" params.dingdanTimeStart != '' and params.dingdanTimeStart != null ">
+                <![CDATA[  and DATE_FORMAT(a.dingdan_time, '%Y-%m-%d %H:%T:%s') >=
+                DATE_FORMAT(#{params.dingdanTimeStart}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test=" params.dingdanTimeEnd != '' and params.dingdanTimeEnd != null ">
+                <![CDATA[  and DATE_FORMAT(a.dingdan_time, '%Y-%m-%d %H:%T:%s') <=
+                DATE_FORMAT(#{params.dingdanTimeEnd} , '%Y-%m-%d %H:%T:%s')    ]]>
+            </if>
+            <if test="params.dingdanMoneyStart != null ">
+                <![CDATA[  and a.dingdan_money >= #{params.dingdanMoneyStart}   ]]>
+            </if>
+            <if test="params.dingdanMoneyEnd != null ">
+                <![CDATA[  and a.dingdan_money <= #{params.dingdanMoneyEnd}   ]]>
+            </if>
+            <if test="params.dingdanTypes != null">
+                and a.dingdan_types = #{params.dingdanTypes}
+            </if>
+            <if test=" params.youxigonglueContent != '' and params.youxigonglueContent != null and params.youxigonglueContent != 'null' ">
+                and a.youxigonglue_content like CONCAT('%',#{params.youxigonglueContent},'%')
+            </if>
+
+            <if test=" params.yonghuBianhao != '' and params.yonghuBianhao != null and params.yonghuBianhao != 'null' ">
+                and yonghu.yonghu_bianhao like CONCAT('%',#{params.yonghuBianhao},'%')
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test="params.sexTypes != null">
+                and yonghu.sex_types = #{params.sexTypes}
+            </if>
+
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>
